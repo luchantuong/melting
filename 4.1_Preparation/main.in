@@ -24,9 +24,6 @@ neigh_modify	delay 0 every 1 check yes
 # -------------------- Simulation Parameters --------------------
 variable	dt equal 0.003
 
-variable	dL equal 0.1
-variable	slab_size equal
-
 variable	Temp_init equal 1.013
 variable	Temp_liq equal 2.0
 variable	Damp_temp equal 100.0*${dt}

@@ -25,8 +25,7 @@ variable	ave_dens equal density
 fix		ave_prop liquid ave/time 1 ${Neq_thermo} ${N_liquid_cool} c_comp_temp v_ave_dens file out_preparation/Out_ave_thermo.cool
 
 # Static Properties
-variable	slab_size equal 0.5
-compute		chunk_fluid all chunk/atom bin/1d x lower ${slab_size} units box
+compute		chunk_fluid all chunk/atom bin/1d x lower ${slab_size} units reduced
 fix		prof_dens all ave/chunk 1 ${N_liquid_cool} ${N_liquid_cool} chunk_fluid density/number file out_preparation/density_profile.cool
 fix		prof_temp all ave/chunk 1 ${N_liquid_cool} ${N_liquid_cool} chunk_fluid temp file out_preparation/temp_profile.cool
 
@@ -49,7 +48,6 @@ unfix		ave_msd_s
 variable	ave_dens delete
 unfix		ave_prop
 
-variable	slab_size delete
 uncompute	chunk_fluid
 unfix		prof_dens
 unfix		prof_temp
