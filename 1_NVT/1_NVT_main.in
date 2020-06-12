@@ -1,0 +1,87 @@
+
+# --------------- INITIALIZATION ------------------
+clear
+units 		lj
+dimension	3
+boundary	p p p
+atom_style	atomic
+
+# ------------------ ATOM DEFINITION -------------------
+variable 	rho equal 1.1
+
+variable 	llat equal (4.0/${rho})^(1/3)
+
+variable 	xlat equal ${llat}
+variable 	ylat equal ${llat}
+variable 	zlat equal ${llat}
+
+variable 	nxlat equal 8
+variable 	nylat equal 8
+variable 	nzlat equal 8
+
+variable 	Lx equal ${nxlat}*${xlat}
+variable 	Ly equal ${nylat}*${ylat}
+variable 	Lz equal ${nzlat}*${zlat}
+
+lattice 	fcc ${rho} origin 0 0 0
+region		box prism 0 ${Lx} 0 ${Ly} 0 ${Lz} 0.0 0.0 0.0 units box
+create_box 	1 box
+create_atoms 	1 region box
+
+# ------------------------ FORCE FIELDS -----------------------
+pair_style 	lj/cut 5.000000 
+pair_coeff	1  1 1.0 1.0
+
+pair_modify 	tail yes
+mass 		1 1.0
+
+#---------------------------Settings----------------------------
+# Setting coefficients of neighbor-list method
+neighbor 	0.3 bin
+neigh_modify 	delay 0 every 1 check yes
+
+# Creat the velocity
+variable 	Iseed_init equal 15422
+variable 	irun equal 1
+variable 	Iseed_imp equal (${Iseed_init}*${irun}+${irun}*${irun}+${irun})
+
+#-----------------------Important parameter---------------------
+variable 	Temp_init equal 0.6
+#---------------------------------------------------------------
+
+compute 	comp_temp all temp
+velocity 	all create ${Temp_init} ${Iseed_imp} mom yes rot yes dist gaussian temp comp_temp
+uncompute 	comp_temp
+
+#----------------------Run Simulation---------------------------
+variable 	dt equal 0.002
+
+variable 	Damp_temp equal 100.0*${dt}
+variable 	Damp_pres equal 1000.0*${dt}
+
+variable 	Drag_fact equal 0.2
+
+shell mkdir Output
+
+# Equilibrium
+log		Output/Out_log.equil
+
+#-----------------------Important parameter---------------------
+variable 	Neq_1_nvt equal 200000
+#---------------------------------------------------------------
+
+include		Input/in.1_NVT.equilibrium
+
+
+# Production
+log		Output/Out_log.prod
+
+#-----------------------Important parameter---------------------
+variable 	Neq_pr_nvt equal 800000
+#---------------------------------------------------------------
+
+include		Input/in.1_NVT.production
+
+
+print		"ALL DONE"
+

@@ -1,0 +1,26 @@
+# Read data from file
+read_data	input/[1.013].Out_2_Heat.config
+
+# Replicate simulation box
+replicate 	${N_replicate} 1 1
+	
+# Define melting region
+variable 	xlo	equal 	-1.0344501870615108e-01
+variable 	xhi 	equal 	 1.2405540375962119e+01
+variable 	ylo	equal 	-8.4690207169339615e-02
+variable 	yhi 	equal 	 1.2386785564425390e+01
+variable 	zlo 	equal 	-9.7383260936196869e-02
+variable 	zhi 	equal 	 1.2399478618195594e+01
+variable 	xy 	equal 	 2.7055299763014240e-02
+variable 	xz 	equal 	-2.7481208843894399e-02
+variable 	yz 	equal 	-1.4409077533589271e-02
+
+#variable	xlo_mel	equal	9.27829402729504
+#variable	xhi_mel	equal	28.0417721192974
+
+variable	xlo_mel	equal	(${xhi}-${xlo})*${N_replicate}/4
+variable	xhi_mel	equal	(${xhi}-${xlo})*3*${N_replicate}/4
+
+region 		mel_reg prism 	${xlo_mel} ${xhi_mel} ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
+
+delete_atoms	porosity mel_reg 0.19 482793

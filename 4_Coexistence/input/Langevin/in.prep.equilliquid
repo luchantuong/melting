@@ -1,0 +1,55 @@
+timestep	${dt}
+reset_timestep	0
+
+compute		comp_temp liquid temp
+
+fix		nve_liquid_equil liquid nve
+fix		lang_liquid_equil liquid langevin ${Temp_init} ${Temp_init} ${Damp_temp} 699483
+fix_modify	lang_liquid_equil temp comp_temp
+
+fix		zero_mom liquid momentum 1 linear 1 1 1
+
+variable	Neq_thermo equal (${N_liquid_equil}/5)  
+thermo_style	custom step atoms lx ly lz density temp press etotal pe ke c_comp_temp
+thermo		${Neq_thermo}
+thermo_modify	norm yes
+
+# Dynamic Properties
+compute		comp_msd_l liquid msd
+fix		ave_msd_l liquid ave/time 1 1 10000 c_comp_msd_l[1] c_comp_msd_l[2] c_comp_msd_l[3] c_comp_msd_l[4] file out_preparation/Out_msd_e_l.prod
+compute		comp_msd_s solid msd
+fix		ave_msd_s solid ave/time 1 1 10000 c_comp_msd_s[1] c_comp_msd_s[2] c_comp_msd_s[3] c_comp_msd_s[4] file out_preparation/Out_msd_e_s.prod
+
+# output global thermodynamic properties
+variable	ave_dens equal density
+fix		ave_prop liquid ave/time 1 ${N_liquid_equil} ${N_liquid_equil} c_comp_temp v_ave_dens file out_preparation/Out_ave_thermo_e.prod
+
+# Static Properties
+variable	slab_size equal 0.005
+compute		chunk_fluid all chunk/atom bin/1d x lower ${slab_size} units reduced
+fix		prof_dens all ave/chunk 1 ${N_liquid_equil} ${N_liquid_equil} chunk_fluid density/number file out_preparation/density_profile_l_e.prod
+fix		prof_temp all ave/chunk 1 ${N_liquid_equil} ${N_liquid_equil} chunk_fluid temp file out_preparation/temp_profile_l_e.prod
+
+run		${N_liquid_equil}
+
+uncompute	comp_temp
+
+unfix		nve_liquid_equil
+unfix		lang_liquid_equil
+
+unfix		zero_mom
+
+variable	Neq_thermo delete
+
+uncompute	comp_msd_l
+unfix		ave_msd_l
+uncompute	comp_msd_s
+unfix		ave_msd_s
+
+variable	ave_dens delete
+unfix		ave_prop
+
+variable	slab_size delete
+uncompute	chunk_fluid
+unfix		prof_dens
+unfix		prof_temp

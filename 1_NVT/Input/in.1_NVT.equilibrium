@@ -1,0 +1,57 @@
+timestep 	${dt}
+reset_timestep 	0
+
+compute 	comp_temp all temp
+compute 	comp_pres all pressure comp_temp
+
+variable 	pres_1 equal c_comp_pres[1]
+variable 	pres_2 equal c_comp_pres[2]
+variable 	pres_3 equal c_comp_pres[3]
+
+variable 	stress_1 equal c_comp_pres[4]
+variable 	stress_2 equal c_comp_pres[5]
+variable 	stress_3 equal c_comp_pres[6]
+
+fix 		nvt_equil all nvt temp ${Temp_init} ${Temp_init} ${Damp_temp} drag ${Drag_fact}
+fix_modify 	nvt_equil temp comp_temp
+
+fix 		zero_mom all momentum 1 linear 1 1 1
+
+variable 	Neq_thermo equal (${Neq_1_nvt}/10)  
+thermo_style 	custom step atoms lx ly lz density temp press etotal pe ke v_pres_1 v_pres_2 v_pres_3 v_stress_1 v_stress_2 v_stress_3
+thermo		${Neq_thermo}
+thermo_modify 	norm yes
+
+# Dynamic Properties
+variable	Nmsd equal ${Neq_1_nvt}/2000
+compute 	comp_msd all msd
+fix 		ave_msd all ave/time 1 1 ${Nmsd} c_comp_msd[1] c_comp_msd[2] c_comp_msd[3] c_comp_msd[4] file Output/Out_msd.equil
+
+# output global thermodynamic properties
+variable 	ave_dens equal density
+fix 		ave_prop all ave/time 1 ${Neq_1_nvt} ${Neq_1_nvt} c_comp_temp v_ave_dens v_pres_1 v_pres_2 v_pres_3 v_stress_1 v_stress_2 v_stress_3 file Output/Out_ave_thermo.equil
+
+run 		${Neq_1_nvt}
+
+uncompute 	comp_temp
+uncompute	comp_pres
+
+variable 	pres_1 delete
+variable 	pres_2 delete
+variable 	pres_3 delete
+
+variable 	stress_1 delete
+variable 	stress_2 delete
+variable 	stress_3 delete
+
+unfix 		nvt_equil
+unfix 		zero_mom
+
+variable 	Neq_thermo delete
+
+variable	Nmsd delete
+uncompute 	comp_msd
+unfix 		ave_msd
+
+variable 	ave_dens delete
+unfix 		ave_prop

@@ -1,0 +1,26 @@
+timestep ${dt}
+reset_timestep 0
+
+compute comp_temp all temp
+compute comp_temp_l liquid temp
+compute comp_temp_s solid temp
+
+fix coex_equil_pre all nvt temp ${Temp_init} ${Temp_init} ${Damp_temp} drag ${Drag_fact}
+fix_modify coex_equil_pre temp comp_temp
+
+fix zero_mom_l liquid momentum 1 linear 1 1 1
+fix zero_mom_s solid momentum 1 linear 1 1 1
+
+thermo_style custom step atoms lx ly lz density c_comp_temp c_comp_temp_l c_comp_temp_s pe ke
+thermo ${N_coex_pre}
+thermo_modify norm yes
+
+run ${N_coex_pre}
+
+uncompute comp_temp
+uncompute comp_temp_l
+uncompute comp_temp_s
+
+unfix coex_equil_pre
+unfix zero_mom_l
+unfix zero_mom_s

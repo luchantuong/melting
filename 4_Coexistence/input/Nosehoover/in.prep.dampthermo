@@ -1,0 +1,14 @@
+timestep ${dt}
+reset_timestep 0
+
+compute comp_temp liquid temp
+fix liquid_pre liquid nvt temp ${Temp_init} ${Temp_init} ${Damp_temp} drag ${Drag_fact}
+fix_modify liquid_pre temp comp_temp
+
+fix zero_mom liquid momentum 1 linear 1 1 1
+
+run ${N_liquid_pre}
+
+uncompute comp_temp
+unfix liquid_pre
+unfix zero_mom

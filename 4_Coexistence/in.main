@@ -1,0 +1,133 @@
+# Code Lammps test
+# Han Tuong Luc, 2019
+
+
+# -------------------- Initialization --------------------
+clear
+units		lj
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+variable	N_replicate	equal 3
+include		input/in.bulk
+
+group		liquid region mel_reg
+group		solid subtract all liquid
+
+# Define pair style
+pair_style	lj/cut 5.0
+
+# Define pair coefficients
+pair_coeff	1	1	1.0	1.0
+pair_modify	tail yes
+
+# Setting coefficients of neighbor-list method
+neighbor	0.3 bin
+neigh_modify	delay 0 every 1 check yes
+	
+# -------------------- Simulation Parameters --------------------
+variable	dt equal 0.003
+
+variable	Temp_init equal 1.013
+variable	Temp_liq equal 2.0
+variable	Damp_temp equal 100.0*${dt}
+variable	Damp_pres equal 1000.0*${dt}
+
+variable	Drag_fact equal 0.2
+
+include		input/in.steps_test
+
+#=========================================================================
+#####################    Creat the velocity   ############################
+
+compute		comp_temp liquid temp
+velocity	liquid create ${Temp_init} 4928459 mom yes rot yes dist gaussian temp comp_temp
+uncompute	comp_temp
+
+compute		comp_temp solid temp
+velocity	solid create ${Temp_init} 4928178 mom yes rot yes dist gaussian temp comp_temp
+uncompute	comp_temp
+
+# -------------------- Run a simulation --------------------
+#variable	thermostat string Langevin
+variable	thermostat string Nosehoover
+#=========================================================================
+#                         Preparation
+#=========================================================================
+
+shell		mkdir out_preparation
+log		out_preparation/Out_log.prep
+
+##################### Damp the thermostat in the liquid ###############
+include		input/${thermostat}/in.prep.dampthermo
+
+
+##################### Heating the liquid region ####################
+include		input/${thermostat}/in.prep.heatliquid
+
+
+##################### Cooling the liquid region ####################
+include		input/${thermostat}/in.prep.coolliquid
+
+
+##################### Equilibriate the liquid region ####################
+include		input/${thermostat}/in.prep.equilliquid
+
+
+
+#=========================================================================
+#                        Coexistence Simulation
+#=========================================================================
+
+##################### Pre-Equilibrium ####################
+shell		mkdir out_equilibration
+log		out_equilibration/Out_log.pre_equil
+include		input/${thermostat}/in.coex.pre.equilibrium
+
+
+##################### Equilibrium ####################
+
+# Loop iequi for production
+
+variable	iequi loop ${nequi}
+
+label		loop
+
+if "${iequi} > ${nequi}" then "jump SELF break"
+
+log		out_equilibration/Out_log.equil.${iequi}
+print		"iequi = ${iequi}"
+include		input/${thermostat}/in.coex.equilibrium
+next		iequi
+jump		SELF loop
+label		break
+
+variable	nequi delete
+variable	iequi delete
+
+
+##################### Production ####################
+shell		mkdir out_production
+
+# Loop iprod for production
+
+variable	iprod loop ${nprod}
+
+label		loopp
+
+if "${iprod} > ${nprod}" then "jump SELF break"
+
+log		out_production/Out_log.prod.${iprod}
+print		"iprod = ${iprod}"
+include		input/${thermostat}/in.coex.production
+next		iprod
+jump		SELF loopp
+label		break
+
+variable	nprod delete
+variable	iprod delete
+
+#############################################################
+
+print "ALL DONE"

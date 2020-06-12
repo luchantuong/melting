@@ -1,0 +1,74 @@
+# Code Lammps test
+# Han Tuong Luc, 2019
+
+clear
+units		lj
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+variable	N_replicate	equal 3
+include		input/bulk.in
+
+# Define pair style
+pair_style	lj/cut 5.0
+
+# Define pair coefficients
+pair_coeff	1	1	1.0	1.0
+pair_modify	tail yes
+
+# Setting coefficients of neighbor-list method
+neighbor	0.3 bin
+neigh_modify	delay 0 every 1 check yes
+	
+# -------------------- Simulation Parameters --------------------
+variable	dt equal 0.003
+
+variable	dL equal 0.1
+variable	slab_size equal
+
+variable	Temp_init equal 1.013
+variable	Temp_liq equal 2.0
+variable	Damp_temp equal 100.0*${dt}
+variable	Damp_pres equal 1000.0*${dt}
+
+variable	Drag_fact equal 0.2
+
+include		input/steps_test.in
+
+#=========================================================================
+#####################    Creat the velocity   ############################
+compute		comp_temp liquid temp
+velocity	liquid create ${Temp_init} 4928459 mom yes rot yes dist gaussian temp comp_temp
+uncompute	comp_temp
+
+compute		comp_temp solid temp
+velocity	solid create ${Temp_init} 4928178 mom yes rot yes dist gaussian temp comp_temp
+uncompute	comp_temp
+
+# -------------------- Run a simulation --------------------
+variable	thermostat string Langevin
+#variable	thermostat string Nosehoover
+#=========================================================================
+#                         Preparation
+#=========================================================================
+shell		mkdir out_preparation
+log		out_preparation/Out_log.preparation
+
+##################### Damp the thermostat in the liquid ###############
+include		input/${thermostat}/damping.in
+
+##################### Heating the liquid region ####################
+include		input/${thermostat}/heating.in
+
+##################### Cooling the liquid region ####################
+include		input/${thermostat}/cooling.in
+
+##################### Equilibriate the liquid region ####################
+include		input/${thermostat}/equilibrium_liquid.in
+
+##################### Equilibriate all ####################
+include		input/${thermostat}/equilibrium_all.in
+
+
+print "ALL DONE"

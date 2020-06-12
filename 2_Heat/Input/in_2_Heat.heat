@@ -1,0 +1,41 @@
+timestep	${dt}
+reset_timestep	0
+
+compute		comp_temp all temp
+compute		comp_pres all pressure comp_temp
+
+variable	pres_1 equal c_comp_pres[1]
+variable	pres_2 equal c_comp_pres[2]
+variable	pres_3 equal c_comp_pres[3]
+
+variable	stress_1 equal c_comp_pres[4]
+variable	stress_2 equal c_comp_pres[5]
+variable	stress_3 equal c_comp_pres[6]
+
+fix		nst_heat all npt temp ${Temp_init} ${Temp_fin} ${Damp_temp} tri ${Pres_imp} ${Pres_imp} ${Damp_pres} drag ${Drag_fact}
+fix_modify	nst_heat temp comp_temp
+
+fix		zero_mom all momentum 1 linear 1 1 1
+
+variable	Neq_thermo equal (${N_nst_heat}/10)  
+thermo_style	custom step atoms lx ly lz xy xz yz density temp press v_pres_1 v_pres_2 v_pres_3 v_stress_1 v_stress_2 v_stress_3
+thermo		${Neq_thermo}
+thermo_modify	norm yes
+
+run		${N_nst_heat}
+
+uncompute	comp_temp
+uncompute	comp_pres
+
+variable	pres_1 delete
+variable	pres_2 delete
+variable	pres_3 delete
+
+variable	stress_1 delete
+variable	stress_2 delete
+variable	stress_3 delete
+
+unfix		nst_heat
+unfix		zero_mom
+
+variable	Neq_thermo delete

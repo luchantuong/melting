@@ -1,0 +1,19 @@
+timestep	${dt}
+reset_timestep	0
+
+compute		comp_temp liquid temp
+
+fix		nve_liquid_pre all nve
+fix		lang_liquid_pre liquid langevin ${Temp_init} ${Temp_init} ${Damp_temp} 699483
+fix_modify	lang_liquid_pre temp comp_temp
+
+fix		zero_mom liquid momentum 1 linear 0 1 1
+
+run		${N_liquid_pre}
+
+uncompute	comp_temp
+
+unfix		nve_liquid_pre
+unfix		lang_liquid_pre
+
+unfix		zero_mom

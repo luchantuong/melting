@@ -1,0 +1,5 @@
+variable	N_liquid_pre equal 500
+variable	N_liquid_heat equal ${N_liquid_pre}*10
+variable	N_liquid_cool equal 5000
+variable	N_liquid_equil equal 5000
+variable	N_all_equil equal 5000

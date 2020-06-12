@@ -1,0 +1,13 @@
+variable	N_liquid_1 equal 1000
+variable	N_liquid_pre equal ${N_liquid_1}/10
+
+variable	N_liquid_2 equal 1000
+variable	N_liquid_equil equal 1000
+
+variable	N_coex_equil equal 1000
+variable	N_coex_pre equal 1000
+
+variable	N_coex_prod equal 1000
+
+variable	nequi equal 1
+variable	nprod equal 1
