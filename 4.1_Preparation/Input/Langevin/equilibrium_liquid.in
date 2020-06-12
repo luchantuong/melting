@@ -31,6 +31,8 @@ fix		prof_temp all ave/chunk 1 ${N_liquid_equil} ${N_liquid_equil} chunk_fluid t
 
 run		${N_liquid_equil}
 
+write_data	out_preparation/pre.config nocoeff
+
 uncompute	comp_temp
 
 unfix		nve_liquid_equil

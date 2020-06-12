@@ -28,5 +28,5 @@ delete_atoms	porosity mel_reg 0.19 482793
 group		liquid region mel_reg
 group		solid subtract all liquid
 
-variable	dL equal 0.01
-variable	slab_size equal ${dL}/(${xhi}-${xlo})
+variable	dL equal 0.03
+variable	slab_size equal ${dL}/((${xhi}-${xlo})*${N_replicate})
