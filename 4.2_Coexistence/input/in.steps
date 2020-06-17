@@ -1,0 +1,7 @@
+variable	N_coex_equil equal 1000000
+variable	N_coex_pre equal 500000
+
+variable	N_coex_prod equal 20000
+
+variable	nequi equal 1
+variable	nprod equal 100

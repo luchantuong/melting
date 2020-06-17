@@ -1,0 +1,77 @@
+# Code Lammps test
+# Han Tuong Luc, 2019
+
+
+# -------------------- Initialization --------------------
+clear
+units		lj
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+
+# Read data from file
+read_data	input/pre.config
+
+variable	dL equal 0.03
+variable	length equal lx
+variable	slab_size equal ${dL}/(${length})
+
+# Define pair style
+pair_style	lj/cut 5.0
+
+# Define pair coefficients
+pair_coeff	1	1	1.0	1.0
+pair_modify	tail yes
+
+# Setting coefficients of neighbor-list method
+neighbor	0.3 bin
+neigh_modify	delay 0 every 1 check yes
+	
+# -------------------- Simulation Parameters --------------------
+variable	dt equal 0.003
+
+variable	Temp_init equal 1.013
+variable	Damp_temp equal 100.0*${dt}
+
+variable	Drag_fact equal 0.2
+
+include		input/in.steps
+
+# -------------------- Run a simulation --------------------
+variable	thermostat string Langevin
+#variable	thermostat string Nosehoover
+
+#=========================================================================
+#                        Coexistence Simulation
+#=========================================================================
+
+##################### Equilibrium ####################
+shell		mkdir out_equilibration
+log		out_equilibration/Out_log.equil
+include		input/Langevin/in.coex.equilibrium
+
+
+##################### Pre Production ####################
+shell		mkdir out_production
+log		out_production/Out_log.pre
+include		input/Nosehoover/in.coex.pre.production
+
+##################### Production ####################
+# Loop iprod for production
+
+variable	iprod loop ${nprod}
+label		loopp
+if "${iprod} > ${nprod}" then "jump SELF break"
+log		out_production/Out_log.prod.${iprod}
+print		"iprod = ${iprod}"
+include		input/Nosehoover/in.coex.production
+next		iprod
+jump		SELF loopp
+label		break
+
+variable	nprod delete
+variable	iprod delete
+
+#############################################################
+
+print "ALL DONE"
