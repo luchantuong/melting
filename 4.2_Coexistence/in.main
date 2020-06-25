@@ -54,7 +54,7 @@ include		input/Langevin/in.coex.equilibrium
 ##################### Pre Production ####################
 shell		mkdir out_production
 log		out_production/Out_log.pre
-include		input/Nosehoover/in.coex.pre.production
+include		input/NoseHoover/in.coex.pre.production
 
 ##################### Production ####################
 # Loop iprod for production
@@ -64,7 +64,7 @@ label		loopp
 if "${iprod} > ${nprod}" then "jump SELF break"
 log		out_production/Out_log.prod.${iprod}
 print		"iprod = ${iprod}"
-include		input/Nosehoover/in.coex.production
+include		input/NoseHoover/in.coex.production
 next		iprod
 jump		SELF loopp
 label		break

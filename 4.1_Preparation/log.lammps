@@ -18,7 +18,7 @@ read_data	input/[1.013].Out_2_Heat.config
   2048 atoms
   reading velocities ...
   2048 velocities
-  read_data CPU = 0.00683498 secs
+  read_data CPU = 0.00551319 secs
 
 # Replicate simulation box
 replicate 	${N_replicate} 1 1
@@ -26,56 +26,49 @@ replicate 	3 1 1
   triclinic box = (-0.103445 -0.0846902 -0.0973833) to (37.4235 12.3868 12.3995) with tilt (0.0270553 -0.0274812 -0.0144091)
   1 by 1 by 1 MPI processor grid
   6144 atoms
-  replicate CPU = 0.00218296 secs
+  replicate CPU = 0.00144196 secs
 
 # Define melting region
-variable 	xlo	equal 	-1.0344501870615108e-01
-variable 	xhi 	equal 	 1.2405540375962119e+01
-variable 	ylo	equal 	-8.4690207169339615e-02
-variable 	yhi 	equal 	 1.2386785564425390e+01
-variable 	zlo 	equal 	-9.7383260936196869e-02
-variable 	zhi 	equal 	 1.2399478618195594e+01
-variable 	xy 	equal 	 2.7055299763014240e-02
-variable 	xz 	equal 	-2.7481208843894399e-02
-variable 	yz 	equal 	-1.4409077533589271e-02
+variable	length	equal	lx
+variable 	xlo	equal 	xlo
+variable 	ylo	equal 	ylo
+variable 	yhi 	equal 	yhi
+variable 	zlo 	equal 	zlo
+variable 	zhi 	equal 	zhi
+variable 	xy 	equal 	xy
+variable 	xz 	equal 	xz
+variable 	yz 	equal	yz
 
-#variable	xlo_mel	equal	9.27829402729504
-#variable	xhi_mel	equal	28.0417721192974
-
-variable	xlo_mel	equal	(${xhi}-${xlo})*${N_replicate}/4
-variable	xlo_mel	equal	(12.4055403759621-${xlo})*${N_replicate}/4
-variable	xlo_mel	equal	(12.4055403759621--0.103445018706151)*${N_replicate}/4
-variable	xlo_mel	equal	(12.4055403759621--0.103445018706151)*3/4
-variable	xhi_mel	equal	(${xhi}-${xlo})*3*${N_replicate}/4
-variable	xhi_mel	equal	(12.4055403759621-${xlo})*3*${N_replicate}/4
-variable	xhi_mel	equal	(12.4055403759621--0.103445018706151)*3*${N_replicate}/4
-variable	xhi_mel	equal	(12.4055403759621--0.103445018706151)*3*3/4
+variable	xlo_mel	equal	(${xlo})+(${length})/4
+variable	xlo_mel	equal	(-0.103445018706151)+(${length})/4
+variable	xlo_mel	equal	(-0.103445018706151)+(37.5269561840048)/4
+variable	xhi_mel	equal	(${xlo})+(${length})*3/4
+variable	xhi_mel	equal	(-0.103445018706151)+(${length})*3/4
+variable	xhi_mel	equal	(-0.103445018706151)+(37.5269561840048)*3/4
 
 region 		mel_reg prism 	${xlo_mel} ${xhi_mel} ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 ${xhi_mel} ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 ${zlo} ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 -0.0973832609361969 ${zhi} ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 ${xy} ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 ${xz} ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 -0.0274812088438944 ${yz}
-region 		mel_reg prism 	9.38173904600119 28.1452171380036 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 -0.0274812088438944 -0.0144090775335893
+region 		mel_reg prism 	9.27829402729505 ${xhi_mel} ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 ${ylo} ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 ${yhi} ${zlo} ${zhi} ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 ${zlo} ${zhi} ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 -0.0973832609361969 ${zhi} ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 ${xy} ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 ${xz} ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 -0.0274812088438944 ${yz}
+region 		mel_reg prism 	9.27829402729505 28.0417721192975 -0.0846902071693396 12.3867855644254 -0.0973832609361969 12.3994786181956 0.0270552997630142 -0.0274812088438944 -0.0144090775335893
 
 delete_atoms	porosity mel_reg 0.19 482793
-Deleted 568 atoms, new total = 5576
+Deleted 569 atoms, new total = 5575
 
 group		liquid region mel_reg
-2502 atoms in group liquid
+2505 atoms in group liquid
 group		solid subtract all liquid
-3074 atoms in group solid
+3070 atoms in group solid
 
 variable	dL equal 0.03
-variable	slab_size equal ${dL}/((${xhi}-${xlo})*${N_replicate})
-variable	slab_size equal 0.03/((${xhi}-${xlo})*${N_replicate})
-variable	slab_size equal 0.03/((12.4055403759621-${xlo})*${N_replicate})
-variable	slab_size equal 0.03/((12.4055403759621--0.103445018706151)*${N_replicate})
-variable	slab_size equal 0.03/((12.4055403759621--0.103445018706151)*3)
+variable	slab_size equal ${dL}/(${length})
+variable	slab_size equal 0.03/(${length})
+variable	slab_size equal 0.03/(37.5269561840048)
 
 # Define pair style
 pair_style	lj/cut 5.0
